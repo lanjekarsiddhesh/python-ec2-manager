@@ -5,7 +5,11 @@ from ec2_operations import (
     terminate_instance,
     get_instance_details
 )
+from StoreLog import store_log
+import boto3
 
+iam = boto3.client("iam")
+response = iam.get_user()
 
 while True:
     print("\nAWS EC2 Manager")
@@ -82,12 +86,15 @@ while True:
 
     #Read Log files 
     elif Choice == "6":
+        store_log(Msg=f'Read log file by current logging user: {response["User"]["UserName"]}.')
         with open('logs/aws_manager.log','r') as f:
             for i in f.readlines():
                 print(i)
     
     #Break the loop
     elif Choice == "7":
+        store_log(Msg=f'User {response["User"]["UserName"]} exit from script')        
         break
     else:
+        store_log(Msg=f'User {response["User"]["UserName"]} choose invalid option.')
         print("Choose valid choise 1 to 4.")

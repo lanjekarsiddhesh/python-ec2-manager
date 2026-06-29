@@ -31,19 +31,12 @@ def logger(func):
     @AWSIamUser
     @wraps(func)
     def wrapper(*args,**kwargs):
-        store_log(Msg=f"Running {func.__name__}")
-        result = func(*args,**kwargs)
-        store_log(Msg=f"Completed {func.__name__}")
-        return result
-    return wrapper
-
-def timer(func):
-    @wraps(func)
-    def wrapper(*args,**kwargs):
         start = time.time()
+        store_log(Msg=f"Running {func.__name__} at {start:.2f}")
         result = func(*args,**kwargs)
         end = time.time()
-        print(f"[TIME] {func.__name__} took {end-start:.2f} sec")
+        store_log(Msg=f"Completed {func.__name__} at {end:.2f}")
+        store_log(f"{func.__name__} took {end-start:.2f} sec")
         return result
     return wrapper
 
@@ -65,3 +58,14 @@ def retry(max_attempt=3, delay=3):
         return wrapper
     return decorator
 
+#Exception handler
+def exception_handler(func):
+    @wraps(func)
+    def wrapper(*args,**kwargs):
+        try:
+            return func(*args,**kwargs)
+        except Exception as e:
+            store_log(Msg=str(e),level="error")
+            print(f"⚠️ Something went wrong in '{func.__name__}'. Please try again.")
+            return None
+    return wrapper

@@ -1,19 +1,31 @@
 import logging
 
-#LOG Function
-def store_log(Filename='logs/aws_manager.log',Msg="Msg",level="info"):
-    logging.basicConfig(
-        filename=Filename,
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s"
+#create logger
+logger = logging.getLogger('aws_manager.log')
+logger.setLevel(logging.DEBUG)
+
+#prevent duplicate handlers.
+if not logger.handlers:
+    file_handler = logging.FileHandler("logs/aws_manager.log")
+
+    formatter = logging.Formatter(
+        "%(asctime)s %(levelname)s %(message)s"
     )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+#LOG Function
+def store_log(Msg="Msg",level="info",traceback=False):
     if level == "info":
-        logging.info(Msg)
+        logger.info(Msg)
     elif level == "warn":
-        logging.warning(Msg)
+        logger.warning(Msg)
+    elif level == "error" and traceback:
+        logger.exception(Msg)   # FULL TRACEBACK
     elif level == "error":
-        logging.error(Msg)
+        logger.error(Msg)
     elif level == "critical":
-        logging.critical(Msg)
+        logger.critical(Msg)
     else:
-        logging.debug(Msg)
+        logger.debug(Msg)
+
